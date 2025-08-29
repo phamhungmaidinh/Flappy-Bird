@@ -1,0 +1,18 @@
+local Score = {}
+local score = 0
+function Score.start(self)
+	Score.textComponent = self.gameObject:GetComponent("Text")
+end
+
+function Score.add(self)
+	score = score + 1
+	--CS.UnityEngine.Debug.Log("Number: " .. score)
+	--Score.textComponent = self.gameObject:GetComponent("Text"")
+	Score.textComponent.text = "Score: " .. tostring(score)
+end
+
+function Score.reset()
+	score = 0
+end
+
+return Score

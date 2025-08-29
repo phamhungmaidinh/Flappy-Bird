@@ -1,0 +1,77 @@
+local Spawner = {}
+Spawner.count = 0
+Spawner.activePipes = {} 
+local timer = 0
+
+local MovingPipe = require("moving_pipe")
+local gameSettings = CS.UnityEngine.Resources.Load("GameSettings")
+
+function Spawner.clear_table()
+    for i = #Spawner.activePipes, 1, -1 do
+        table.remove(Spawner.activePipes, i)
+    end
+    timer = 0
+end
+
+function Spawner.Spawn_Single(self,pipePrefab)
+    local newPipeObject = CS.UnityEngine.Object.Instantiate(pipePrefab, CS.UnityEngine.Vector3(self.transform.position.x, CS.UnityEngine.Random.Range(self.transform.position.y - gameSettings.heightOffsetDown, self.transform.position.y + gameSettings.heightOffsetUp), 0), self.transform.rotation)
+    local newPipeWrapper = {}
+    newPipeWrapper.pipeObject = newPipeObject
+    newPipeWrapper.checkMid = false
+    newPipeWrapper.checkPillar=false
+    table.insert(Spawner.activePipes, newPipeWrapper)
+end
+
+function Spawner.start(self,pipePrefab)
+    Spawner.Spawn_Single(self,pipePrefab)
+end
+
+function Spawner.update(self,pipePrefab)
+    if timer < gameSettings.spawnRate then
+        timer = timer + CS.UnityEngine.Time.deltaTime
+    else
+        Spawner.Spawn_Single(self,pipePrefab)
+        timer = 0
+    end
+    
+    for i = #Spawner.activePipes, 1, -1 do
+        local pipeObject = Spawner.activePipes[i].pipeObject
+        if pipeObject == nil then
+            table.remove(Spawner.activePipes, i)
+        else
+            local should_remove = MovingPipe.update(pipeObject, Spawner, i)
+            if should_remove then
+                table.remove(Spawner.activePipes, i)
+            end
+        end
+    end
+end
+
+function Spawner.check_go_through()
+    for i = #Spawner.activePipes, 1, -1 do
+        local pipeWrapper = Spawner.activePipes[i]
+        if not pipeWrapper.checkMid and MovingPipe.go_through(pipeWrapper.pipeObject.transform:Find("Middle")) then
+            --CS.UnityEngine.Debug.Log("Yeah baby")
+            pipeWrapper.checkMid = true
+            return true
+        end
+    end
+    return false
+end
+
+function Spawner.check_lose(border)
+    for i = #Spawner.activePipes, 1, -1 do
+        local pipeWrapper = Spawner.activePipes[i]
+        if MovingPipe.go_through(pipeWrapper.pipeObject.transform:Find("Top Pipe")) 
+            or MovingPipe.go_through(pipeWrapper.pipeObject.transform:Find("Bottom Pipe"))
+            or MovingPipe.go_through(border.transform:Find("Bottom Border"))
+            or MovingPipe.go_through(border.transform:Find("Top Border"))
+        then
+            --CS.UnityEngine.Debug.Log("Yeah baby")
+            return true
+        end
+    end
+    return false
+end
+
+return Spawner

@@ -1,0 +1,19 @@
+local BirdLogic = {}
+local gameSettings = CS.UnityEngine.Resources.Load("GameSettings")
+
+function BirdLogic.awake(self)
+    BirdLogic.myRigidbody = self:GetComponent("Rigidbody2D")
+    BirdLogic.collider = self:GetComponent("CircleCollider2D")
+end
+
+function BirdLogic.start(self)
+    BirdLogic.myRigidbody.gravityScale = gameSettings.gravityScale
+end
+
+function BirdLogic.update(self)
+    if CS.UnityEngine.Input.GetKeyDown(CS.UnityEngine.KeyCode.Space) then
+            BirdLogic.myRigidbody.velocity = CS.UnityEngine.Vector2(0, 1 * gameSettings.flapStrength)
+    end
+end
+
+return BirdLogic

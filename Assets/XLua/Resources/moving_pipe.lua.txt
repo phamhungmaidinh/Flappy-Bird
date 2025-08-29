@@ -1,0 +1,47 @@
+local MovingPipe = {}
+local Bird = require("bird")
+local gameSettings = CS.UnityEngine.Resources.Load("GameSettings")
+
+function MovingPipe.update(self,table,index)
+    if self == nil or self.gameObject == nil then
+        CS.UnityEngine.Debug.Log("gameObject is nil, returning")
+        return true
+    end
+    local currentPos = self.transform.position
+    local newPos = currentPos + CS.UnityEngine.Vector3(-1 * gameSettings.pipeMoveSpeed, 0, 0) * CS.UnityEngine.Time.deltaTime
+    self.transform.position = newPos
+    
+    if self.transform.position.x <= gameSettings.deadZone then
+        table.count = table.count + 1
+        --CS.UnityEngine.Debug.Log("Pipe deleted: " .. table.count)
+        CS.UnityEngine.Object.Destroy(self.gameObject)
+        return true
+    end
+end
+
+--function MovingPipe.OnTriggerEnter2D(self, other)
+--    if other.gameObject.tag == "Bird" then
+--        CS.UnityEngine.Debug.Log("Passes!")
+--        return true
+--    end
+--   return false
+--end
+
+function CheckBoxAndCircle(bMidx,bMidy,bSizex,bSizey,cMidx,cMidy,cRadius)
+    local nearest_x = math.max(bMidx-(bSizex/2),math.min(cMidx,bMidx+(bSizex/2)))
+    local nearest_y = math.max(bMidy-(bSizey/2),math.min(cMidy,bMidy+(bSizey/2)))
+    local distance = (nearest_x-cMidx)*(nearest_x-cMidx)+(nearest_y-cMidy)*(nearest_y-cMidy)
+    return distance <= cRadius*cRadius
+end
+
+function MovingPipe.go_through(self)
+    local middleCollider = self:GetComponent("BoxCollider2D")
+    --CS.UnityEngine.Debug.Log("Middle Here: " .. middleCollider.bounds.center.x .. ", " .. middleCollider.bounds.center.y .. " | " .. middleCollider.bounds.size.x .. ", " .. middleCollider.bounds.size.y)
+    --CS.UnityEngine.Debug.Log("Bird Here: " .. Bird.collider.bounds.center.x .. ", " .. Bird.collider.bounds.center.y .. " | " .. Bird.collider.bounds.size.x .. ", " .. Bird.collider.bounds.size.y)
+    if  CheckBoxAndCircle(middleCollider.bounds.center.x,middleCollider.bounds.center.y,middleCollider.bounds.size.x,middleCollider.bounds.size.y,Bird.collider.bounds.center.x,Bird.collider.bounds.center.y,Bird.collider.bounds.size.x) then
+        return true
+    end
+    return false
+end
+
+return MovingPipe

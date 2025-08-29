@@ -1,0 +1,11 @@
+local Middle_Pipe = {}
+local Bird = require("bird")
+
+function Middle_Pipe.crash(self)
+	local middleCollider = self:GetComponent("BoxCollider2D")
+    local result = middleCollider.bounds:Intersects(Bird.collider.bounds)
+    CS.UnityEngine.Debug.Log("Bird pos: " .. tostring(Bird.collider.bounds.center) .. " | Pipe pos: " .. tostring(middleCollider.bounds.center))
+    return result
+end
+
+return Middle_Pipe

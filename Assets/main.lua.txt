@@ -1,0 +1,24 @@
+local bird = require("bird")
+local pipe=require("moving_pipe")
+local spawner = require("pipe_spawner")
+local logic = require("game_logic")
+local score = require("score")
+
+function awake()
+    bird.awake(Bird)
+    --spawner.awake(PipeSpawner)
+end
+
+function start()
+    bird.start(Bird)
+    spawner.start(PipeSpawner,MovingPipe)
+    score.start(Score)
+end
+
+function update()
+    if not logic.lose then
+        bird.update(Bird)
+        spawner.update(PipeSpawner,MovingPipe)
+    end
+    logic.update(GameLogic,Score,Button,GameOverScreen,Border)
+end

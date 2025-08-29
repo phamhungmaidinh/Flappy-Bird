@@ -1,0 +1,32 @@
+local Logic = {}
+local Score = require("score")
+local Spawner = require("pipe_spawner")
+local Button = require("button")
+Logic.lose = false
+
+function Logic.restart()
+	Spawner.clear_table()
+	Score.reset()
+	Logic.lose = false
+	local SceneManager = CS.UnityEngine.SceneManagement.SceneManager
+	local currentScene = SceneManager.GetActiveScene()
+	SceneManager.LoadScene(currentScene.name)
+end
+
+function Logic.update(self,score,button,screen,border)
+	if Logic.lose and Button.clicked(button) then
+		Logic.restart()
+	end
+
+	if Spawner.check_lose(border) then
+		screen:SetActive(true)
+		--CS.UnityEngine.Debug.Log("Lose")
+		Logic.lose = true
+	end
+
+	if Spawner.check_go_through() then
+		Score.add(score)
+	end
+end
+
+return Logic

@@ -1,0 +1,17 @@
+local Button = {}
+
+function Button.clicked(self)
+    if CS.UnityEngine.Input.GetMouseButtonDown(0) then
+        local mp = CS.UnityEngine.Input.mousePosition
+        local mousePos = CS.UnityEngine.Vector2(mp.x, mp.y)
+        local rectTransform = self:GetComponent("RectTransform")
+        
+        if CS.UnityEngine.RectTransformUtility.RectangleContainsScreenPoint(rectTransform, mousePos, nil) then
+            --CS.UnityEngine.Debug.Log("Button is clicked")
+            return true
+        end
+    end
+    return false
+end
+
+return Button
